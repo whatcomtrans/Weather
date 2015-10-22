@@ -1,6 +1,7 @@
 <html>
 <head>
 	<title>MOAB Weather</title>
+	<meta name=viewport content="width=device-width, initial-scale=1">
 	<style type="text/css">
 		@font-face {
 		    font-family: 'weather';
@@ -118,141 +119,62 @@
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script type="text/javascript">
-		(function($) {
-		  "use strict";
+		jQuery(document).ready(function($) {
 
-		  function getAltTemp(unit, temp) {
-		    if(unit === 'f') {
-		      return Math.round((5.0/9.0)*(temp-32.0));
-		    } else {
-		      return Math.round((9.0/5.0)*temp+32.0);
-		    }
-		  }
+	      /* Edit these variables */
+	      var api = "7f8f980cb2dfc748";
+	      var state = "WA";
+	      var city = "Bellingham";
+	      var stationID = "KWABELLI59";
 
-		  $.extend({
-		    simpleWeather: function(options){
-		      options = $.extend({
-		        location: '',
-		        woeid: '',
-		        unit: 'f',
-		        success: function(weather){},
-		        error: function(message){}
-		      }, options);
+	      $.ajax({
+	      url: "http://api.wunderground.com/api/" + api + "/forecast/conditions/q/" + state + "/pws:" + stationID + ".json",
+	      dataType : "jsonp",
+	      success : function(parsed_json) {
+	          var icon_url_json = "http://icons.wxug.com/i/c/f/" + parsed_json['current_observation']['icon'] + ".gif";
+	          var icon_json = '<img src ="' + icon_url_json + '" />';
+	          var temp_json = parsed_json['current_observation']['temp_f'] + "&deg; F";
+	            // temp_json += "<span>°F</span>";
+	          var condition_json = parsed_json['current_observation']['weather'];
+	          var real_feel_json = "Feels Like " + parsed_json['current_observation']['feelslike_f'] + "°F";
+	          var wind_json = parsed_json['current_observation']['wind_dir'] + parsed_json['current_observation']['wind_mph'];
+	          var location_json = city + ', ' + state;
 
-		      var now = new Date();
-		      var weatherUrl = 'https://query.yahooapis.com/v1/public/yql?format=json&rnd='+now.getFullYear()+now.getMonth()+now.getDay()+now.getHours()+'&diagnostics=true&callback=?&q=';
-		      if(options.location !== '') {
-		        weatherUrl += 'select * from weather.forecast where woeid in (select woeid from geo.placefinder where text="'+options.location+'" and gflags="R" limit 1) and u="'+options.unit+'"';
-		      } else if(options.woeid !== '') {
-		        weatherUrl += 'select * from weather.forecast where woeid='+options.woeid+' and u="'+options.unit+'"';
-		      } else {
-		        options.error({message: "Could not retrieve weather due to an invalid location."});
-		        return false;
-		      }
 
-		      $.getJSON(
-		        encodeURI(weatherUrl),
-		        function(data) {
-		          if(data !== null && data.query !== null && data.query.results !== null && data.query.results.channel.description !== 'Yahoo! Weather Error') {
-		            var result = data.query.results.channel,
-		                weather = {},
-		                forecast,
-		                compass = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N'],
-		                image404 = "https://s.yimg.com/os/mit/media/m/weather/images/icons/l/44d-100567.png";
+	          var forecastArray = parsed_json['forecast']['txt_forecast']['forecastday'];
+	                if (forecastArray !== null) {
 
-		            weather.title = result.item.title;
-		            weather.temp = result.item.condition.temp;
-		            weather.code = result.item.condition.code;
-		            weather.todayCode = result.item.forecast[0].code;
-		            weather.currently = result.item.condition.text;
-		            weather.high = result.item.forecast[0].high;
-		            weather.low = result.item.forecast[0].low;
-		            weather.text = result.item.forecast[0].text;
-		            weather.humidity = result.atmosphere.humidity;
-		            weather.pressure = result.atmosphere.pressure;
-		            weather.rising = result.atmosphere.rising;
-		            weather.visibility = result.atmosphere.visibility;
-		            weather.sunrise = result.astronomy.sunrise;
-		            weather.sunset = result.astronomy.sunset;
-		            weather.description = result.item.description;
-		            weather.city = result.location.city;
-		            weather.country = result.location.country;
-		            weather.region = result.location.region;
-		            weather.updated = result.item.pubDate;
-		            weather.link = result.item.link;
-		            weather.units = {temp: result.units.temperature, distance: result.units.distance, pressure: result.units.pressure, speed: result.units.speed};
-		            weather.wind = {chill: result.wind.chill, direction: compass[Math.round(result.wind.direction / 22.5)], speed: result.wind.speed};
+	                    for (var i = 0; i < forecastArray.length; i++) {
 
-		            if(result.item.condition.temp < 80 && result.atmosphere.humidity < 40) {
-		              weather.heatindex = -42.379+2.04901523*result.item.condition.temp+10.14333127*result.atmosphere.humidity-0.22475541*result.item.condition.temp*result.atmosphere.humidity-6.83783*(Math.pow(10, -3))*(Math.pow(result.item.condition.temp, 2))-5.481717*(Math.pow(10, -2))*(Math.pow(result.atmosphere.humidity, 2))+1.22874*(Math.pow(10, -3))*(Math.pow(result.item.condition.temp, 2))*result.atmosphere.humidity+8.5282*(Math.pow(10, -4))*result.item.condition.temp*(Math.pow(result.atmosphere.humidity, 2))-1.99*(Math.pow(10, -6))*(Math.pow(result.item.condition.temp, 2))*(Math.pow(result.atmosphere.humidity,2));
-		            } else {
-		              weather.heatindex = result.item.condition.temp;
-		            }
+	                        if (forecastArray[i] !== null) {
+	                            //you can use this to assingn directly to HTML element    
+	                            console.log(forecastArray[i]['period']);
+	                            console.log(forecastArray[i]['title']);
+	                            console.log(forecastArray[i]['fcttext']);
 
-		            if(result.item.condition.code == "3200") {
-		              weather.thumbnail = image404;
-		              weather.image = image404;
-		            } else {
-		              weather.thumbnail = "https://s.yimg.com/zz/combo?a/i/us/nws/weather/gr/"+result.item.condition.code+"ds.png";
-		              weather.image = "https://s.yimg.com/zz/combo?a/i/us/nws/weather/gr/"+result.item.condition.code+"d.png";
-		            }
+	                        }
 
-		            weather.alt = {temp: getAltTemp(options.unit, result.item.condition.temp), high: getAltTemp(options.unit, result.item.forecast[0].high), low: getAltTemp(options.unit, result.item.forecast[0].low)};
-		            if(options.unit === 'f') {
-		              weather.alt.unit = 'c';
-		            } else {
-		              weather.alt.unit = 'f';
-		            }
+	                    }}
 
-		            weather.forecast = [];
-		            for(var i=0;i<result.item.forecast.length;i++) {
-		              forecast = result.item.forecast[i];
-		              forecast.alt = {high: getAltTemp(options.unit, result.item.forecast[i].high), low: getAltTemp(options.unit, result.item.forecast[i].low)};
+	      // document.getElementById("weather-icon").innerHTML = icon_json;
+	      document.getElementById("temp").innerHTML = temp_json;
+	      document.getElementById("condition").innerHTML = condition_json;  
+	      document.getElementById("wind").innerHTML = wind_json;
+	      document.getElementById("location").innerHTML = location_json;
 
-		              if(result.item.forecast[i].code == "3200") {
-		                forecast.thumbnail = image404;
-		                forecast.image = image404;
-		              } else {
-		                forecast.thumbnail = "https://s.yimg.com/zz/combo?a/i/us/nws/weather/gr/"+result.item.forecast[i].code+"ds.png";
-		                forecast.image = "https://s.yimg.com/zz/combo?a/i/us/nws/weather/gr/"+result.item.forecast[i].code+"d.png";
-		              }
-
-		              weather.forecast.push(forecast);
-		            }
-
-		            options.success(weather);
-		          } else {
-		            options.error({message: "There was an error retrieving the latest weather information. Please try again.", error: data.query.results.channel.item.title});
-		          }
-		        }
-		      );
-		      return this;
-		    }
-		  });
-		})(jQuery);
-	</script>
-	<script type="text/javascript">
-		$(document).ready(function() {
-		  $.simpleWeather({
-		    location: '',
-		    woeid: '12590476',
-		    unit: 'f',
-		    success: function(weather) {
-		      html = '<h2><i class="icon-'+weather.code+'"></i> '+weather.temp+'&deg;'+weather.units.temp+'</h2>';
-		      html += '<ul><li>'+weather.city+', '+weather.region+'</li>';
-		      html += '<li class="currently">'+weather.currently+'</li>';
-		      html += '<li>'+weather.wind.direction+' '+weather.wind.speed+' '+weather.units.speed+'</li></ul>';
-		  
-		      $("#weather").html(html);
-		    },
-		    error: function(error) {
-		      $("#weather").html('<p>'+error+'</p>');
-		    }
-		  });
-		});
+	      }
+	      });
+	    });
 	</script>
 </head>
 <body>
-	<div id="weather"></div>
+	<div id="weather">
+		<h2 id="temp"></h2>
+		<ul>
+			<li id="location"></li>
+			<li id="condition"></li>
+			<li id="wind"></li>
+		</ul>
+	</div>
 </body>
 </html>

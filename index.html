@@ -17,7 +17,7 @@
 		html {
 		  width: 100%;
 		  height: 100%;
-		  background: #1192d3 url(http://data.ridewta.com/Bellingham.jpg) no-repeat bottom right;
+		  background: #1192d3 url(http://data.ridewta.com/Bellingham.jpg) no-repeat;
 		  background-size: cover;
 		}
 
@@ -27,7 +27,6 @@
 		}
 
 		#weather {
-		  width: 500px;
 		  margin: 0px auto;
 		  text-align: center;
 		  text-transform: uppercase;
@@ -116,6 +115,18 @@
 		#weather .currently {
 		  margin: 0 20px;
 		}
+		@media screen and (max-width: 429px) {
+			#weather {
+
+			}
+			#weather ul {
+
+			}
+			#weather li {
+				display: block;
+				margin-bottom: 20px;
+			}
+		}
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script type="text/javascript">
@@ -137,7 +148,7 @@
 	            // temp_json += "<span>°F</span>";
 	          var condition_json = parsed_json['current_observation']['weather'];
 	          var real_feel_json = "Feels Like " + parsed_json['current_observation']['feelslike_f'] + "°F";
-	          var wind_json = parsed_json['current_observation']['wind_dir'] + parsed_json['current_observation']['wind_mph'];
+	          var wind_json = parsed_json['current_observation']['wind_dir'] + " " + parsed_json['current_observation']['wind_mph'];
 	          var location_json = city + ', ' + state;
 
 
